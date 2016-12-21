@@ -2,7 +2,6 @@
   (:require [clj-http.client :as client]
             [environ.core :refer [env]]))
 
-
 (defn read-numbers
   "Reads the ids of the paintings"
   [response]
@@ -10,6 +9,10 @@
        :artObjects
        (map :objectNumber)))
 
+(defn get-page-of-ids [p]
+  (read-numbers
+   (client/get "https://www.rijksmuseum.nl/api/nl/collection"
+                {:as :json :query-params {:key (env :key) :format "json" :type "schilderij" :toppieces "True"  :p  p  :ps 10  }})))
 
 (defn read-json-data [id] (client/get
                             (str "https://www.rijksmuseum.nl/api/nl/collection/" id)
@@ -65,8 +68,7 @@
                         :levels)
         url (filter #(= (:name %) "z4") art-objects)
         tiles (:tiles (first url))
-        image (get-in tiles [0 :url])
-        ]
+        image (get-in tiles [0 :url])]
     {:tiles image}))
 
 (defn fetch-paintings-and-images-front-page
@@ -80,13 +82,3 @@
   (let [paintings (pmap #(read-data-detail-page (read-json-data %)) ids)
         images (pmap #(read-image-url (read-image-data %)) ids)]
     (mapv merge paintings images)))
-
-
-
-
-
-
-
-
-
-

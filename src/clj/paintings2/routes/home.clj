@@ -9,13 +9,20 @@
             [paintings2.api-get :as api]
             [clj-http.client :as client]))
 
-(defn home-page []
-  (let [url "https://www.rijksmuseum.nl/api/nl/collection"
-        options {:as :json :query-params {:key (env :key) :format "json" :type "schilderij" :toppieces "True"}}]
+(defn home-page [page-num]
+  (let [page (or page-num 1)
+        prev-page (dec page)
+        prev? (pos? prev-page)
+        next-page (inc page)
+        next? (< page 470)]
+    (println "next? = " next? ", next-page = " next-page)
     (layout/render
-      "home.html" {:paintings (-> (client/get url options)
-                                  api/read-numbers
-                                  api/fetch-paintings-and-images-front-page)})))
+     "home.html" {:paintings (api/fetch-paintings-and-images-front-page (api/get-page-of-ids page))
+                  :page-num page
+                  :prev? prev?
+                  :prev-page prev-page
+                  :next? next?
+                  :next-page next-page})))
 
 (defn detail-page [id]
   (layout/render
@@ -23,8 +30,6 @@
 
 
 (defroutes home-routes
-           (GET "/" [] (home-page))
-           (resources "/")
-
-           (GET "/detail/:id" [id] (detail-page id))
-           (resources "/detail/:id"))
+  (GET "/" [page-num] (home-page (read-string page-num)))
+  (GET "/detail/:id" [id] (detail-page id))
+  (resources "/"))

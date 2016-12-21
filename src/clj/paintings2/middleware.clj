@@ -64,3 +64,9 @@
             (dissoc :session)))
       wrap-context
       wrap-internal-error))
+
+(defn wrap-session-page [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (if-not (get-in response [:session :page])
+        (assoc-in response [:session :page] 0)))))

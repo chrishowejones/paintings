@@ -2,7 +2,9 @@
 
 {% block content %}
 
-
+<div class="">Page {{ page-num }}</div>
+<div>{% if prev? %}<a href="/?page-num={{ prev-page }}">Prev Page</a>{% endif %}</div>
+<div>{% if next? %}<a href="/?page-num={{ next-page }}">Next Page</a>{% endif %}</div>
 <div class="portfolio col-2 gutter ">
 
     {% for data in paintings %}
@@ -28,4 +30,3 @@
 </div>
 
 {% endblock %}
-
