@@ -10,12 +10,11 @@
             [clj-http.client :as client]))
 
 (defn home-page [page-num]
-  (let [page (or page-num 1)
+  (let [page (read-string (or page-num "1"))
         prev-page (dec page)
         prev? (pos? prev-page)
         next-page (inc page)
         next? (< page 470)]
-    (println "next? = " next? ", next-page = " next-page)
     (layout/render
      "home.html" {:paintings (api/fetch-paintings-and-images-front-page (api/get-page-of-ids page))
                   :page-num page
@@ -30,6 +29,6 @@
 
 
 (defroutes home-routes
-  (GET "/" [page-num] (home-page (read-string page-num)))
+  (GET "/" [page-num] (home-page page-num))
   (GET "/detail/:id" [id] (detail-page id))
   (resources "/"))
